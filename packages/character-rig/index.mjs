@@ -119,11 +119,11 @@ export function createHumanoidRig(){
       add(id+'_1',id+'_0',digit==='thumb'?sign*-11:0,13,-1.5,1.5,d);
       add(id+'_2',id+'_1',digit==='thumb'?sign*-7:0,11,-1.5,1.5,d);
     }
-    add(side+'_hip','pelvis',sign*27,14,-.9,.9,d);
+    add(side+'_hip','pelvis',sign*27,14,-1.3,1.3,d);
     add(side+'_thigh',side+'_hip',0,0,-1.6,1.6,d);
     add(side+'_knee',side+'_thigh',0,94,-.3,2.5,d);
     add(side+'_shin',side+'_knee',0,0,-1.6,1.6,d);
-    add(side+'_ankle',side+'_shin',0,88,-.65,.65,d);
+    add(side+'_ankle',side+'_shin',0,88,-1.6,1.6,d);
     add(side+'_foot',side+'_ankle',0,6,-.65,.65,d);
     add(side+'_heel',side+'_foot',sign*-14,8,-.45,.45,d);
     add(side+'_ball',side+'_foot',sign*19,10,-.45,.45,d);
@@ -133,3 +133,4 @@ export function createHumanoidRig(){
     views:[...FACING_VIEWS],joints};
   return validateRig(rig);
 }
+

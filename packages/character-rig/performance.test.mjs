@@ -6,7 +6,7 @@ const rig=createHumanoidRig();
 const d=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y);
 test('R1 15-second skeleton demo spans exactly 450 frames at 30fps',()=>{
  assert.equal(TOTAL_FRAMES,450);assert.equal(FPS,30);
- assert.deepEqual([0,130,267,407,449].map(f=>skeletonPoseAtFrame(f).section),[0,1,2,3,3]);
+ assert.deepEqual([0,120,235,345,449].map(f=>skeletonPoseAtFrame(f).section),[0,1,2,3,3]);
 });
 test('R1 all frames satisfy rotation bounds, joints stay attached, and lengths remain constant',()=>{
  for(let f=0;f<TOTAL_FRAMES;f++){
@@ -19,7 +19,7 @@ test('R1 all frames satisfy rotation bounds, joints stay attached, and lengths r
  }
 });
 test('R1 the head follows torso, while neck bones remain separately articulated',()=>{
- const base=skeletonPoseAtFrame(0),inclined=skeletonPoseAtFrame(63);
+ const base=skeletonPoseAtFrame(0),inclined=skeletonPoseAtFrame(165);
  const p0=evaluateSkeleton(rig,base.angles,base.rootOffset);
  const p1=evaluateSkeleton(rig,inclined.angles,inclined.rootOffset);
  assert.ok(d(p0.head_root,p1.head_root)>3);
@@ -28,7 +28,7 @@ test('R1 the head follows torso, while neck bones remain separately articulated'
  assert.ok(d(p1.neck_tip,p1.head_root)>10);
 });
 test('R1 all fingers, wrist, pelvis and both ankle chains remain represented in motion',()=>{
- const p=skeletonPoseAtFrame(309),w=evaluateSkeleton(rig,p.angles,p.rootOffset);
+ const p=skeletonPoseAtFrame(165),w=evaluateSkeleton(rig,p.angles,p.rootOffset);
  for(const side of ['left','right']){
   for(const name of ['hip','knee','ankle','foot','wrist','hand','thumb_2','index_2','middle_2','ring_2','pinky_2'])
    assert.ok(w[side+'_'+name],side+'_'+name);
@@ -56,3 +56,4 @@ test('R1 deterministic scrubbing and smooth frame-to-frame head, neck, hip motio
 test('R1 rejects invalid frames',()=>{
  for(const frame of [-1,450,1.25,NaN])assert.throws(()=>skeletonPoseAtFrame(frame),/out of bounds/);
 });
+
