@@ -1,0 +1,25 @@
+{
+  "name": "animation-studio-remotion-rig-proof",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build:player": "tsc --noEmit && vite build",
+    "render": "remotion render src/index.tsx RigProof out/rig-proof-15s.mp4 --concurrency=2",
+    "still": "remotion still src/index.tsx RigProof out/frame.png --frame=165"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.0",
+    "@remotion/player": "^4.0.0",
+    "remotion": "^4.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "typescript": "~5.7.2",
+    "vite": "^6.0.5"
+  }
+}

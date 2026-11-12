@@ -1,0 +1,102 @@
+name: Animation engine lab
+
+on:
+  push:
+    branches: [main]
+    paths: ['packages/**', 'experiments/**', '.github/workflows/**']
+  pull_request:
+    paths: ['packages/**', 'experiments/**', '.github/workflows/**']
+  workflow_dispatch:
+
+concurrency:
+  group: lab-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  rig-proof:
+    if: github.event.repository.private == false
+    name: Build player, render 15s MP4 and inspect deterministic frames
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: "24"
+      - name: Validate animation document and movement logic
+        run: node --test packages/animation-contract/*.test.mjs
+      - name: Validate full-body rig and neck/head demo
+        run: node --test packages/character-rig/*.test.mjs
+
+      - name: Install isolated Remotion dependencies
+        working-directory: experiments/remotion-poc
+        run: npm ci --no-audit --no-fund
+      - name: Build integrated React preview
+        working-directory: experiments/remotion-poc
+        run: npm run build:player
+      - name: Render Remotion animation and deterministic stills
+        working-directory: experiments/remotion-poc
+        run: |
+          mkdir -p out
+          npx remotion render src/index.tsx RigProof out/rig-proof-15s.mp4 --concurrency=2 --log=error
+          npx remotion still src/index.tsx RigProof out/frame_000.png --frame=0 --log=error
+          npx remotion still src/index.tsx RigProof out/frame_053.png --frame=53 --log=error
+          npx remotion still src/index.tsx RigProof out/frame_080.png --frame=80 --log=error
+          npx remotion still src/index.tsx RigProof out/frame_170.png --frame=170 --log=error
+          npx remotion still src/index.tsx RigProof out/frame_300.png --frame=300 --log=error
+          npx remotion still src/index.tsx RigProof out/frame_415.png --frame=415 --log=error
+          npx remotion still src/index.tsx RigProof out/frame_170_replay.png --frame=170 --log=error
+          cmp out/frame_170.png out/frame_170_replay.png
+      - name: Render R1 debug skeleton and sample frames
+        working-directory: experiments/remotion-poc
+        run: |
+          npx remotion render src/index.tsx SkeletonProof out/skeleton-r1-15s.mp4 --concurrency=2 --log=error
+          npx remotion still src/index.tsx SkeletonProof out/skeleton_frame_062.png --frame=62 --log=error
+          npx remotion still src/index.tsx SkeletonProof out/skeleton_frame_180.png --frame=180 --log=error
+          npx remotion still src/index.tsx SkeletonProof out/skeleton_frame_307.png --frame=307 --log=error
+          npx remotion still src/index.tsx SkeletonProof out/skeleton_frame_180_repeat.png --frame=180 --log=error
+          cmp out/skeleton_frame_180.png out/skeleton_frame_180_repeat.png
+
+      - name: Install FFmpeg and FFprobe for output inspection
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq ffmpeg
+      - name: Validate real MP4 and create frame comparison
+        working-directory: experiments/remotion-poc
+        run: |
+          ffprobe -v error -show_entries format=duration:stream=width,height,nb_frames,r_frame_rate -select_streams v:0 -of json out/rig-proof-15s.mp4 > out/ffprobe.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('out/ffprobe.json').read_text())
+          stream=data['streams'][0]
+          assert abs(float(data['format']['duration'])-15)<0.05, data
+          assert stream['width']==540 and stream['height']==960, data
+          assert stream['r_frame_rate']=='30/1', data
+          assert int(stream['nb_frames'])==450, data
+          print('MP4 aprovado: 15s, 540x960, 30 fps, 450 quadros')
+          PY
+          ffprobe -v error -show_entries format=duration:stream=width,height,nb_frames,r_frame_rate -select_streams v:0 -of json out/skeleton-r1-15s.mp4 > out/skeleton-ffprobe.json
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          data=json.loads(Path('out/skeleton-ffprobe.json').read_text())
+          stream=data['streams'][0]
+          assert abs(float(data['format']['duration'])-15)<0.05, data
+          assert stream['width']==540 and stream['height']==960, data
+          assert stream['r_frame_rate']=='30/1' and int(stream['nb_frames'])==450, data
+          print('R1 aprovado: esqueleto de 15s / 450 quadros')
+          PY
+          ffmpeg -v error -y -i out/rig-proof-15s.mp4 -vf "fps=1/3,scale=270:480,tile=5x1" -frames:v 1 out/storyboard.png
+      - name: Upload MP4 and representative frames
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: animation-engine-proof
+          path: |
+            experiments/remotion-poc/out/
+            experiments/remotion-poc/dist-player/
+          retention-days: 3
+          if-no-files-found: error
