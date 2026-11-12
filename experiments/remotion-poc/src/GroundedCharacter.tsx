@@ -21,7 +21,7 @@ export const GroundedCharacter:React.FC<{debug?:boolean}>=({debug=false})=>{
       <path d="M-20 10H36V16H-20Z" fill="#f7fcff"/><path d="M-5 -9L12 -7M-5 -3L15 -1" stroke="white" strokeWidth="3"/>
     </g>
   </g>)}
-  <path d={path(['left_shoulder','right_shoulder','right_hip','left_hip'])} fill="#258bc7" stroke="#17608d" strokeWidth="4" strokeLinejoin="round"/>
+  <path d={path(['neck_base','right_shoulder','right_hip','left_hip','left_shoulder'])} fill="#258bc7" stroke="#17608d" strokeWidth="4" strokeLinejoin="round"/>
   <path d={line(w.left_hip,w.right_hip)} stroke="#1e384e" strokeWidth="14" strokeLinecap="round"/>
   <path d={line(w.neck_base,w.head_root)} stroke="#edb58c" strokeWidth="24" strokeLinecap="round"/>
   {(['left','right'] as const).map(side=><g key={side}>
@@ -45,10 +45,10 @@ export const GroundedCharacter:React.FC<{debug?:boolean}>=({debug=false})=>{
   <rect width="540" height="960" fill="url(#scene)"/>
   <text x="30" y="47" fill="#aee9e2" fontSize="17" letterSpacing="2">{debug?'ESQUELETO · MESMA POSE':'ANIMATION ENGINE LAB'}</text>
   <text x="30" y="90" fill="white" fontSize="28" fontWeight="bold">{p.title}</text>
-  <g transform="translate(-38 -80) scale(1.14)">
+  <g transform="translate(-24 30)">
     <path d="M40 772H500" stroke="#a9dcd3" strokeWidth="2"/>
     {[120,180,240,300,360,420].map(x=><path key={x} d={`M${x} 772v10`} stroke="#a9dcd3"/>)}
-    {p.pointing>.02&&<g opacity={p.pointing}><circle cx="436" cy="398" r="27" fill="#ffcf61"/><path d="M425 398h22m-11 -11v22" stroke="#fff8dc" strokeWidth="4"/></g>}
+    {p.pointing>.02&&<g opacity={p.pointing}><circle cx="500" cy="340" r="27" fill="#ffcf61"/><path d="M489 340h22m-11 -11v22" stroke="#fff8dc" strokeWidth="4"/></g>}
     {debug?bones:art}
     {debug&&(['left','right'] as const).map(side=><g key={side}><circle cx={p.feet[side].x} cy={p.feet[side].y} r="9" fill="none" stroke={p.feet[side].contact?'#84ff9d':'#ffd064'} strokeWidth="2"/><text x={p.feet[side].x-20} y="810" fill="white" fontSize="12">{p.feet[side].contact?'APOIO':'LIVRE'}</text></g>)}
   </g>

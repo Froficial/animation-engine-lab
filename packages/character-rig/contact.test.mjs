@@ -36,3 +36,9 @@ test('jump bends before takeoff, lifts both feet, and absorbs landing',()=>{
  assert.ok(land.rootOffset.y>neutral.rootOffset.y+8);
  assert.equal(land.feet.left.y,neutral.feet.left.y);
 });
+test('all joints fit the shared framing with room for finger strokes',()=>{
+ for(let f=0;f<450;f++){
+  const p=skeletonPoseAtFrame(f),w=evaluateSkeleton(rig,p.angles,p.rootOffset);
+  for(const [name,n] of Object.entries(w))assert.ok(n.x-24>=16&&n.x-24<=524,`${name} clipped at ${f}`);
+ }
+});
