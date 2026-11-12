@@ -45,7 +45,7 @@ export const GroundedCharacter:React.FC<{debug?:boolean}>=({debug=false})=>{
   <rect width="540" height="960" fill="url(#scene)"/>
   <text x="30" y="47" fill="#aee9e2" fontSize="17" letterSpacing="2">{debug?'ESQUELETO · MESMA POSE':'ANIMATION ENGINE LAB'}</text>
   <text x="30" y="90" fill="white" fontSize="28" fontWeight="bold">{p.title}</text>
-  <g transform="translate(-24 30)">
+  <g transform="translate(-15 60) scale(0.96)">
     <path d="M40 772H500" stroke="#a9dcd3" strokeWidth="2"/>
     {[120,180,240,300,360,420].map(x=><path key={x} d={`M${x} 772v10`} stroke="#a9dcd3"/>)}
     {p.pointing>.02&&<g opacity={p.pointing}><circle cx="500" cy="340" r="27" fill="#ffcf61"/><path d="M489 340h22m-11 -11v22" stroke="#fff8dc" strokeWidth="4"/></g>}
